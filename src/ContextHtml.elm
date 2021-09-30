@@ -1,4 +1,4 @@
-module Context.Html exposing
+module ContextHtml exposing
     ( ContextHtml
     , a
     , abbr
@@ -110,8 +110,7 @@ module Context.Html exposing
     , wrapHtml
     )
 
-{-| Context 有りの Html
-Html.elm の代わりに使用する
+{-| Html with context
 -}
 
 import Html exposing (Attribute, Html)
@@ -122,7 +121,7 @@ viewWithContext modelToContext view model =
     applyContext (modelToContext model) (view model)
 
 
-{-| Context を使用する
+{-| Use a context value
 -}
 useContext :
     (ctx -> a)
@@ -184,24 +183,75 @@ useContext5 selectorA selectorB selectorC selectorD selectorE cb =
             applyContext ctx <| cb (selectorA ctx) (selectorB ctx) (selectorC ctx) (selectorD ctx) (selectorE ctx)
 
 
+useContext6 :
+    (ctx -> a)
+    -> (ctx -> b)
+    -> (ctx -> c)
+    -> (ctx -> d)
+    -> (ctx -> e)
+    -> (ctx -> f)
+    -> (a -> b -> c -> d -> e -> f -> ContextHtml ctx msg)
+    -> ContextHtml ctx msg
+useContext6 selectorA selectorB selectorC selectorD selectorE selectorF cb =
+    withContext <|
+        \ctx ->
+            applyContext ctx <| cb (selectorA ctx) (selectorB ctx) (selectorC ctx) (selectorD ctx) (selectorE ctx) (selectorF ctx)
+
+
+useContext7 :
+    (ctx -> a)
+    -> (ctx -> b)
+    -> (ctx -> c)
+    -> (ctx -> d)
+    -> (ctx -> e)
+    -> (ctx -> f)
+    -> (ctx -> g)
+    -> (a -> b -> c -> d -> e -> f -> g -> ContextHtml ctx msg)
+    -> ContextHtml ctx msg
+useContext7 selectorA selectorB selectorC selectorD selectorE selectorF selectorG cb =
+    withContext <|
+        \ctx ->
+            applyContext ctx <| cb (selectorA ctx) (selectorB ctx) (selectorC ctx) (selectorD ctx) (selectorE ctx) (selectorF ctx) (selectorG ctx)
+
+
+useContext8 :
+    (ctx -> a)
+    -> (ctx -> b)
+    -> (ctx -> c)
+    -> (ctx -> d)
+    -> (ctx -> e)
+    -> (ctx -> f)
+    -> (ctx -> g)
+    -> (ctx -> h)
+    -> (a -> b -> c -> d -> e -> f -> g -> h -> ContextHtml ctx msg)
+    -> ContextHtml ctx msg
+useContext8 selectorA selectorB selectorC selectorD selectorE selectorF selectorG selectorH cb =
+    withContext <|
+        \ctx ->
+            applyContext ctx <| cb (selectorA ctx) (selectorB ctx) (selectorC ctx) (selectorD ctx) (selectorE ctx) (selectorF ctx) (selectorG ctx) (selectorH ctx)
+
+{-| Html with context
+-}
 type ContextHtml ctx msg
     = ContextHtml (ctx -> Html msg)
 
 
-{-| Html を作成
+{-| Create `ContextHtml`
 -}
 withContext : (ctx -> Html msg) -> ContextHtml ctx msg
 withContext =
     ContextHtml
 
 
-{-| Context を適用する
+{-| Apply context to `ContextHtml`
 -}
 applyContext : ctx -> ContextHtml ctx msg -> Html msg
 applyContext ctx (ContextHtml view_) =
     view_ ctx
 
 
+{-| Wrap html tag of elm/html to `ContextHtml`
+-}
 wrap :
     (List (Attribute msg) -> List (Html msg) -> Html msg)
     -> List (Attribute msg)
@@ -213,8 +263,7 @@ wrap origin attr children =
             origin attr (List.map (applyContext ctx) children)
 
 
-{-| Html を ContextHtml に合わせる。
-Svg などでも使えるように Expose している。
+{-| Wrap `Html msg` to `ContextHtml`
 -}
 wrapHtml : Html msg -> ContextHtml ctx msg
 wrapHtml html =

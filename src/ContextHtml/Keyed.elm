@@ -1,6 +1,6 @@
-module Context.Html.Keyed exposing (node, ol, ul)
+module ContextHtml.Keyed exposing (node, ol, ul)
 
-import Context.Html exposing (ContextHtml, applyContext, withContext)
+import ContextHtml exposing (ContextHtml, applyContext, withContext)
 import Html exposing (Attribute)
 import Html.Keyed as Keyed
 

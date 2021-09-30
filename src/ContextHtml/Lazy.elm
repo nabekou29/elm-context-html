@@ -1,6 +1,6 @@
-module Context.Html.Lazy exposing (lazy, lazy2, lazy3, lazy4, lazy5, lazy6, lazy7, lazy8)
+module ContextHtml.Lazy exposing (lazy, lazy2, lazy3, lazy4, lazy5, lazy6, lazy7, lazy8)
 
-import Context.Html exposing (ContextHtml, applyContext, withContext)
+import  ContextHtml exposing (ContextHtml, applyContext, withContext)
 import Html.Lazy as Lazy
 
 
