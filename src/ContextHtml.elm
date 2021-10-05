@@ -1,5 +1,5 @@
 module ContextHtml exposing
-    ( viewWithContext, applyContext, withContext, wrapHtml
+    ( ContextHtml, applyContext, withContext, wrapHtml
     , useContext, useContext2, useContext3, useContext4, useContext5, useContext6, useContext7, useContext8
     , text, node, map
     , h1, h2, h3, h4, h5, h6
@@ -18,7 +18,6 @@ module ContextHtml exposing
     , small, cite, dfn, abbr, time, var, samp, kbd, s, q
     , mark, ruby, rt, rp, bdi, bdo, wbr
     , details, summary, menuitem, menu
-    , ContextHtml
     )
 
 {-|
@@ -26,7 +25,7 @@ module ContextHtml exposing
 
 # ContextHtml
 
-@docs ContextHtml, viewWithContext, applyContext, withContext, wrapHtml
+@docs ContextHtml, applyContext, withContext, wrapHtml
 
 
 # useContext
@@ -136,6 +135,11 @@ type ContextHtml ctx msg
 
 
 {-| Create `ContextHtml`
+
+    view : ContextHtml ctx msg
+    view =
+        withContext <| \ctx -> Html.div [] []
+
 -}
 withContext : (ctx -> Html msg) -> ContextHtml ctx msg
 withContext =
@@ -143,20 +147,51 @@ withContext =
 
 
 {-| Apply context to `ContextHtml`
+
+    view : Html msg
+    view =
+        let
+            context = ... -- make Context
+        in
+        applyContext context viewChild
+
+    viewChild : ContextHtml Context msg
+    viewChild = ...
+
 -}
 applyContext : ctx -> ContextHtml ctx msg -> Html msg
 applyContext ctx (ContextHtml view_) =
     view_ ctx
 
 
-{-| Injects Context from the Model into the view function.
--}
-viewWithContext : (model -> ctx) -> (model -> ContextHtml ctx msg) -> model -> Html msg
-viewWithContext modelToContext view model =
-    applyContext (modelToContext model) (view model)
-
-
 {-| Use a context value
+
+    type alias Context =
+        { text : String }
+
+    view =
+        useContext .text <| \text_ -> div [] [ text text_ ]
+
+When Context is Opaque type
+
+    -- Context.elm
+    type Context
+        = Context { text : String }
+
+    -- Expose Selector accessing context value
+    textSelector (Context { text }) =
+        text
+
+    textWithPrefixSelector (Context { text }) =
+        "prefix_" ++ text
+
+    -- Main.elm
+    view1 =
+        useContext textSelector <| \text_ -> div [] [ text text_ ]
+
+    view2 =
+        useContext textWithPrefixSelector <| \text_ -> div [] [ text text_ ]
+
 -}
 useContext :
     (ctx -> a)
@@ -168,7 +203,17 @@ useContext selector cb =
             applyContext ctx <| cb (selector ctx)
 
 
-{-| -}
+{-| Use context values
+
+    type alias Context =
+        { text : String
+        , color : String
+        }
+
+    view =
+        useContext2 .text .color <| \text_ color -> div [ style "color" color ] [ text text_ ]
+
+-}
 useContext2 :
     (ctx -> a)
     -> (ctx -> b)
@@ -273,10 +318,8 @@ useContext8 selectorA selectorB selectorC selectorD selectorE selectorF selector
             applyContext ctx <| cb (selectorA ctx) (selectorB ctx) (selectorC ctx) (selectorD ctx) (selectorE ctx) (selectorF ctx) (selectorG ctx) (selectorH ctx)
 
 
-
-{- t Wrap html tag of elm/html to `ContextHtml` -}
-
-
+{-| Wrap html tag of elm/html to `ContextHtml`
+-}
 wrap :
     (List (Attribute msg) -> List (Html msg) -> Html msg)
     -> List (Attribute msg)
@@ -288,7 +331,15 @@ wrap origin attr children =
             origin attr (List.map (applyContext ctx) children)
 
 
-{-| Wrap `Html msg` to `ContextHtml`
+{-| Wrap `Html` to `ContextHtml`
+
+    view : ContextHtml ctx msg
+    view =
+        div [] [ wrapHtml <| viewCommon "Text" ]
+
+    viewCommon : String -> Html msg
+    viewCommon = ...
+
 -}
 wrapHtml : Html msg -> ContextHtml ctx msg
 wrapHtml html =
