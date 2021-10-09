@@ -1,6 +1,7 @@
 module Child exposing (view)
 
-import ContextHtml exposing (ContextHtml, applyContext, button, div, text, useContext, wrapHtml)
+import ContextHtml exposing (ContextHtml, applyContext, div, useContext, wrapHtml)
+import ContextHtml.Lazy exposing (lazy)
 import Html exposing (Html)
 import Html.Attributes exposing (style)
 
@@ -29,19 +30,23 @@ view color =
             { color = color
             }
     in
+    -- Use wrapHtml and applyContext to switch Context
     wrapHtml <| applyContext context viewInternal
 
 
 viewInternal : HtmlWithContext msg
 viewInternal =
-    viewInner "Child view"
+    lazy viewInner "Child view"
 
 
 viewInner : String -> HtmlWithContext msg
 viewInner text_ =
     useContext .color <|
         \color ->
-            div [ style "color" color ] [ text text_ ]
+            div [ style "color" color ]
+                -- View functions that return `Html msg` need to be wrapped.
+                [ wrapHtml <| viewCommon text_
+                ]
 
 
 viewCommon : String -> Html msg

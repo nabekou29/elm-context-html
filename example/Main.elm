@@ -2,19 +2,19 @@ module Main exposing (main)
 
 -- Import `ContextHtml` instead of `Html`
 
+import Browser
 import Child
-import ContextHtml exposing (ContextHtml, applyContext, button, div, text, useContext)
-import ContextHtml.Browser as Browser
-import Html exposing (Html)
-import Html.Attributes exposing (style)
-import Html.Events exposing (onClick)
+import ContextHtml exposing (ContextHtml, applyContext, button, div, input, text, useContext)
+import ContextHtml.Lazy exposing (lazy)
+import Html.Attributes exposing (style, value)
+import Html.Events exposing (onClick, onInput)
 
 
 main =
     Browser.sandbox
         { init = init
         , update = update
-        , view = view
+        , view = \( model, ctx ) -> applyContext ctx (view model)
         }
 
 
@@ -46,12 +46,16 @@ init =
 
 
 type Msg
-    = ChangeColor String
+    = ChangeText String
+    | ChangeColor String
 
 
-update : Msg -> Model -> Context -> ( Model, Context )
-update msg model context =
+update : Msg -> ( Model, Context ) -> ( Model, Context )
+update msg ( model, context ) =
     case msg of
+        ChangeText text ->
+            ( { model | text = text }, context )
+
         ChangeColor color ->
             ( model, { context | color = Just color } )
 
@@ -67,7 +71,10 @@ type alias HtmlWithContext msg =
 view : Model -> HtmlWithContext Msg
 view model =
     div []
-        [ viewColorButtons, viewTextWrapper model.text ]
+        [ input [ onInput ChangeText, value model.text ] []
+        , viewColorButtons
+        , viewTextWrapper model.text
+        ]
 
 
 viewTextWrapper : String -> HtmlWithContext msg
@@ -82,8 +89,8 @@ viewText str =
         \color ->
             div
                 [ style "background-color" (Maybe.withDefault "white" color)
-                , style "height" "60px"
-                , style "width" "60px"
+                , style "padding" "12px"
+                , style "display" "inline-block"
                 ]
                 [ text str ]
 
@@ -93,7 +100,8 @@ viewChild =
     useContext .color <|
         Maybe.map
             (\color ->
-                Child.view color
+                -- Use ContextHtml.Lazy instead of Html.Lazy.
+                lazy Child.view color
             )
             >> Maybe.withDefault (div [] [])
 
@@ -109,18 +117,3 @@ viewColorButtons =
                         [ text c ]
                 )
         )
-
-
-a : Int -> String -> Bool
-a =
-    Debug.todo ""
-
-
-b : Bool -> Float
-b =
-    Debug.todo ""
-
-
-c : unknown
-c =
-    a >> b
