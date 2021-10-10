@@ -3,19 +3,16 @@
     "name": "nabekou29/elm-context-html",
     "summary": "View functions to use Context everywhere.",
     "license": "MIT",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "exposed-modules": [
         "ContextHtml",
         "ContextHtml.Keyed",
-        "ContextHtml.Lazy",
-        "ContextHtml.Browser"
+        "ContextHtml.Lazy"
     ],
     "elm-version": "0.19.0 <= v < 0.20.0",
     "dependencies": {
-        "elm/browser": "1.0.0 <= v < 2.0.0",
         "elm/core": "1.0.0 <= v < 2.0.0",
-        "elm/html": "1.0.0 <= v < 2.0.0",
-        "elm/url": "1.0.0 <= v < 2.0.0"
+        "elm/html": "1.0.0 <= v < 2.0.0"
     },
     "test-dependencies": {}
 }
